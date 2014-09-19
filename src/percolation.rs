@@ -19,12 +19,13 @@ impl Show for State {
 
 pub struct Percolation {
     n: uint,
-    list: Vec<State>
+    list: Vec<State>,
+    positions: Vec<uint>
 }
 
 impl Percolation {
     pub fn new(n: uint) -> Percolation {
-        Percolation{n: n, list: Vec::from_fn(n * n, |_| Blocked)}
+        Percolation{n: n, list: Vec::from_fn(n * n, |_| Blocked), positions: Vec::from_fn(n * n, |i| i)}
     }
 
     pub fn print_grid(&self) {
