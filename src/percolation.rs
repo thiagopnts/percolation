@@ -6,6 +6,7 @@ use self::dynamic_connectivity::{QuickFind, QuickUnion, WeightedQuickUnion};
 #[path = "dynamic_connectivity/mod.rs"]
 mod dynamic_connectivity;
 
+#[deriving(PartialEq)]
 enum State {
     Open,
     Full,
@@ -37,10 +38,76 @@ impl Percolation {
         i * self.n + j
     }
 
+    fn index(&self, point: (uint, uint)) -> uint {
+        self.to_index(point.val0(), point.val1())
+    }
+
+    fn is_upper_left_corner(&self, i: uint, j: uint) -> bool {
+        i == 0 && j == 0
+    }
+
+    fn is_bottom_left_corner(&self, i: uint, j: uint) -> bool {
+        i == (self.n - 1) && j == 0
+    }
+
+
+    fn is_upper_right_corner(&self, i: uint, j: uint) -> bool {
+        i == 0 && j == (self.n - 1)
+    }
+
+    fn is_bottom_right_corner(&self, i: uint, j: uint) -> bool {
+        i == self.n - 1 && j == (self.n - 1)
+    }
+
+    fn up(&self, i: uint, j: uint) -> (uint, uint) {
+        (i - 1, j)
+    }
+
+    fn bottom(&self, i: uint, j: uint) -> (uint, uint) {
+        (i + 1, j)
+    }
+
+    fn left(&self, i: uint, j: uint) -> (uint, uint) {
+        (i, j - 1)
+    }
+
+    fn right(&self, i: uint, j: uint) -> (uint, uint) {
+        (i, j + 1)
+    }
+
+    fn has_left(&self, i: uint, j: uint) -> bool {
+        j > 0
+    }
+
+    fn has_right(&self, i: uint, j: uint) -> bool {
+        j < self.n - 1
+    }
+
+    fn has_up(&self, i: uint, j: uint) -> bool {
+        i > 0
+    }
+
+    fn has_bottom(&self, i: uint, j: uint) -> bool {
+        i < self.n - 1
+    }
+
+
     pub fn open(&mut self, i: uint, j: uint) {
         let index = self.to_index(i, j);
-        *self.states.get_mut(index) = Open;
-        self.positions.union(i, index);
+        let state = if index >= 0 && index < self.n {
+            Full
+        } else if self.has_right(i, j) && self.states[self.index(self.right(i, j))] == Full {
+            Full
+        } else if self.has_left(i, j) && self.states[self.index(self.left(i, j))] == Full {
+            Full
+        } else if self.has_up(i, j) && self.states[self.index(self.up(i, j))] == Full {
+            Full
+        } else if self.has_bottom(i, j) && self.states[self.index(self.bottom(i, j))] == Full {
+            Full
+        } else {
+            Open
+        };
+        *self.states.get_mut(index) = state;
     }
 
     pub fn is_open(&self, i: uint, j: uint) -> bool {
