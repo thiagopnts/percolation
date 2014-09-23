@@ -97,12 +97,20 @@ impl Percolation {
         let state = if index >= 0 && index < self.n {
             Full
         } else if self.has_right(i, j) && self.states[self.index(self.right(i, j))] == Full {
+            let right_index = self.index(self.right(i, j));
+            self.positions.union(index, right_index);
             Full
         } else if self.has_left(i, j) && self.states[self.index(self.left(i, j))] == Full {
+            let left_index = self.index(self.left(i, j));
+            self.positions.union(index, left_index);
             Full
         } else if self.has_up(i, j) && self.states[self.index(self.up(i, j))] == Full {
+            let up_index = self.index(self.up(i, j));
+            self.positions.union(index, up_index);
             Full
         } else if self.has_bottom(i, j) && self.states[self.index(self.bottom(i, j))] == Full {
+            let bottom_index = self.index(self.bottom(i, j));
+            self.positions.union(index, bottom_index);
             Full
         } else {
             Open
