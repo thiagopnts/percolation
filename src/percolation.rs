@@ -13,6 +13,14 @@ enum State {
     Blocked
 }
 
+enum Direction {
+    Left,
+    Right,
+    Up,
+    Bottom,
+    Current
+}
+
 impl Show for State {
     fn fmt(&self, f: &mut Formatter) -> Result {
         match *self {
@@ -91,44 +99,91 @@ impl Percolation {
         i < self.n - 1
     }
 
+    fn right_state(&self, i: uint, j: uint) -> State {
+        self.states[self.index(self.right(i, j))]
+    }
+
+    fn left_state(&self, i: uint, j: uint) -> State {
+        self.states[self.index(self.left(i, j))]
+    }
+
+    fn bottom_state(&self, i: uint, j: uint) -> State {
+        self.states[self.index(self.bottom(i, j))]
+    }
+
+    fn up_state(&self, i: uint, j: uint) -> State {
+        self.states[self.index(self.up(i, j))]
+    }
+
+    fn is_blocked(&self, i: uint, j: uint, direction: Direction) -> bool {
+        match direction {
+            Right => self.has_right(i, j) && self.right_state(i, j) == Blocked,
+            Left  => self.has_left(i, j) && self.left_state(i, j) == Blocked,
+            Up    => self.has_up(i, j) && self.up_state(i, j) == Blocked,
+            Bottom => self.has_bottom(i, j) && self.bottom_state(i, j) == Blocked,
+            Current => self.states[self.to_index(i, j)] == Blocked
+        }
+    }
+
+    fn fill(&mut self, point: (uint, uint)) {
+        let (i, j) = point;
+
+        if self.is_full(i, j, Current) || self.is_open(i, j, Current) && (self.is_full(i, j, Left) ||
+                self.is_full(i, j, Right) ||
+                self.is_full(i, j, Up) || self.is_full(i, j, Bottom)) {
+            let index = self.index(point);
+            *self.states.get_mut(index) = Full;
+        } else {
+            return;
+        }
+        
+        let right_point = self.right(i, j);
+        let left_point = self.left(i, j);
+        let up_point = self.up(i, j);
+        let bottom_point = self.bottom(i, j);
+        let q = self.to_index(i, j);
+        if self.is_open(i, j, Right) {
+            self.fill(right_point);
+        }
+        if self.is_open(i, j, Left) {
+            self.fill(left_point);
+        }
+        if self.is_open(i, j, Up) {
+            self.fill(up_point);
+        }
+        if self.is_open(i, j, Bottom) {
+            self.fill(bottom_point);
+        }
+    }
 
     pub fn open(&mut self, i: uint, j: uint) {
         let index = self.to_index(i, j);
         let state = if index >= 0 && index < self.n {
             Full
-        } else if self.has_right(i, j) && self.states[self.index(self.right(i, j))] == Full {
-            let right_index = self.index(self.right(i, j));
-            self.positions.union(index, right_index);
-            Full
-        } else if self.has_left(i, j) && self.states[self.index(self.left(i, j))] == Full {
-            let left_index = self.index(self.left(i, j));
-            self.positions.union(index, left_index);
-            Full
-        } else if self.has_up(i, j) && self.states[self.index(self.up(i, j))] == Full {
-            let up_index = self.index(self.up(i, j));
-            self.positions.union(index, up_index);
-            Full
-        } else if self.has_bottom(i, j) && self.states[self.index(self.bottom(i, j))] == Full {
-            let bottom_index = self.index(self.bottom(i, j));
-            self.positions.union(index, bottom_index);
-            Full
         } else {
             Open
         };
         *self.states.get_mut(index) = state;
+        self.fill((i, j));
     }
 
-    pub fn is_open(&self, i: uint, j: uint) -> bool {
-        match self.states[self.to_index(i, j)] {
-            Open => true,
-            _    => false
+    pub fn is_open(&self, i: uint, j: uint, direction: Direction) -> bool {
+        match direction {
+            Right => self.has_right(i, j) && self.right_state(i, j) == Open,
+            Left  => self.has_left(i, j) && self.left_state(i, j) == Open,
+            Up    => self.has_up(i, j) && self.up_state(i, j) == Open,
+            Bottom => self.has_bottom(i, j) && self.bottom_state(i, j) == Open,
+            Current => self.states[self.to_index(i, j)] == Open
         }
     }
 
-    pub fn is_full(&self, i: uint, j: uint) -> bool {
-        match self.states[self.to_index(i, j)] {
-            Full => true,
-            _    => false
+    pub fn is_full(&self, i: uint, j: uint, direction: Direction) -> bool {
+        match direction {
+            Right => self.has_right(i, j) && self.right_state(i, j) == Full,
+            Left  => self.has_left(i, j) && self.left_state(i, j) == Full,
+            Up    => self.has_up(i, j) && self.up_state(i, j) == Full,
+            Bottom => self.has_bottom(i, j) && self.bottom_state(i, j) == Full,
+            Current => self.states[self.to_index(i, j)] == Full
         }
     }
 
