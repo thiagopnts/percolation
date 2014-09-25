@@ -127,12 +127,30 @@ impl Percolation {
 
     fn fill(&mut self, point: (uint, uint)) {
         let (i, j) = point;
+        let p = self.to_index(i, j);
 
-        if self.is_full(i, j, Current) || self.is_open(i, j, Current) && (self.is_full(i, j, Left) ||
-                self.is_full(i, j, Right) ||
-                self.is_full(i, j, Up) || self.is_full(i, j, Bottom)) {
-            let index = self.index(point);
-            *self.states.get_mut(index) = Full;
+        if p >= 0 && p < self.n {
+            *self.states.get_mut(p) = Full;
+        } else if self.is_open(i, j, Current) {
+            if self.is_full(i, j, Left) {
+                let q = self.index(self.left(i, j));
+                *self.states.get_mut(p) = Full;
+                self.positions.union(p, q)
+            } else if self.is_full(i, j, Right) {
+                let q = self.index(self.right(i, j));
+                *self.states.get_mut(p) = Full;
+                self.positions.union(p, q)
+            } else if self.is_full(i, j, Up) {
+                let q = self.index(self.up(i, j));
+                *self.states.get_mut(p) = Full;
+                self.positions.union(p, q)
+            } else if self.is_full(i, j, Bottom) {
+                let q = self.index(self.bottom(i, j));
+                *self.states.get_mut(p) = Full;
+                self.positions.union(p, q)
+            } else {
+                return;
+            }
         } else {
             return;
         }
@@ -158,12 +176,8 @@ impl Percolation {
 
     pub fn open(&mut self, i: uint, j: uint) {
         let index = self.to_index(i, j);
-        let state = if index >= 0 && index < self.n {
-            Full
-        } else {
-            Open
-        };
-        *self.states.get_mut(index) = state;
+
+        *self.states.get_mut(index) = Open;
         self.fill((i, j));
     }
 
