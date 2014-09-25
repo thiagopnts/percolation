@@ -50,23 +50,6 @@ impl Percolation {
         self.to_index(point.val0(), point.val1())
     }
 
-    fn is_upper_left_corner(&self, i: uint, j: uint) -> bool {
-        i == 0 && j == 0
-    }
-
-    fn is_bottom_left_corner(&self, i: uint, j: uint) -> bool {
-        i == (self.n - 1) && j == 0
-    }
-
-
-    fn is_upper_right_corner(&self, i: uint, j: uint) -> bool {
-        i == 0 && j == (self.n - 1)
-    }
-
-    fn is_bottom_right_corner(&self, i: uint, j: uint) -> bool {
-        i == self.n - 1 && j == (self.n - 1)
-    }
-
     fn up(&self, i: uint, j: uint) -> (uint, uint) {
         (i - 1, j)
     }
