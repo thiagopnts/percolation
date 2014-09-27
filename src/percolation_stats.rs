@@ -36,13 +36,13 @@ impl PercolationStats {
 
     pub fn calculate_threshold(&mut self) -> f64 {
         let mut percolation = Percolation::new(self.n);
+        let mut points = self.generate_possible_points();
         let mut opened = 0f64;
         loop {
-            let (i, j) = self.random_tuple();
-            if !percolation.is_open(i, j) {
-                percolation.open(i, j);
-                opened += 1f64;
-            }
+            let index = random::<uint>() % points.len();
+            let (i, j) = points.remove(index).unwrap();
+            percolation.open(i, j);
+            opened += 1f64;
             if percolation.percolates() {
                 return (opened / (self.n * self.n) as f64);
             }
@@ -61,22 +61,26 @@ impl PercolationStats {
         let mut sum = 0f64;
         // fold it pls
         for i in range(0, self.thresholds.len()) {
-            sum += (self.thresholds[i] - self.mean) * (self.thresholds[i] - self.mean);
+            sum += (self.thresholds[i] - self.mean) as f64 * (self.thresholds[i] - self.mean) as f64;
         }
         (sum / (self.t as f64 - 1f64)).sqrt()
     }
 
     pub fn confidence_lo(&mut self) -> f64 {
-        self.mean - (1.96 * self.stddev) / (self.t as f64).sqrt()
+        self.mean - (1.96f64 * self.stddev) / (self.t as f64).sqrt()
     }
 
     pub fn confidence_hi(&mut self) -> f64 {
         self.mean + (1.96 * self.stddev) / (self.t as f64).sqrt()
     }
 
-    fn random_tuple(&self) -> (uint, uint) {
-        let i = random::<uint>() % self.n;
-        let j = random::<uint>() % self.n;
-        (i, j)
+    fn generate_possible_points(&self) -> Vec<(uint, uint)> {
+        let mut tuples = vec!();
+        for i in range(0, self.n) {
+            for j in range(0, self.n) {
+                tuples.push((i, j));
+            }
+        }
+        tuples
     }
 }
