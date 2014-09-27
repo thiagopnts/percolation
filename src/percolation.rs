@@ -114,7 +114,7 @@ impl Percolation {
 
         if p >= 0 && p < self.n {
             *self.states.get_mut(p) = Full;
-        } else if self.is_open(i, j, Current) {
+        } else if self.is_open_in_direction(i, j, Current) {
             if self.is_full(i, j, Left) {
                 let q = self.index(self.left(i, j));
                 *self.states.get_mut(p) = Full;
@@ -143,16 +143,16 @@ impl Percolation {
         let up_point = self.up(i, j);
         let bottom_point = self.bottom(i, j);
         let q = self.to_index(i, j);
-        if self.is_open(i, j, Right) {
+        if self.is_open_in_direction(i, j, Right) {
             self.fill(right_point);
         }
-        if self.is_open(i, j, Left) {
+        if self.is_open_in_direction(i, j, Left) {
             self.fill(left_point);
         }
-        if self.is_open(i, j, Up) {
+        if self.is_open_in_direction(i, j, Up) {
             self.fill(up_point);
         }
-        if self.is_open(i, j, Bottom) {
+        if self.is_open_in_direction(i, j, Bottom) {
             self.fill(bottom_point);
         }
     }
@@ -164,7 +164,11 @@ impl Percolation {
         self.fill((i, j));
     }
 
-    pub fn is_open(&self, i: uint, j: uint, direction: Direction) -> bool {
+    pub fn is_open(&self, i: uint, j: uint) -> bool {
+        self.is_open_in_direction(i, j, Current)
+    }
+
+    fn is_open_in_direction(&self, i: uint, j: uint, direction: Direction) -> bool {
         match direction {
             Right => self.has_right(i, j) && self.right_state(i, j) == Open,
             Left  => self.has_left(i, j) && self.left_state(i, j) == Open,
