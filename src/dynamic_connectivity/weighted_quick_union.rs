@@ -31,15 +31,11 @@ impl WeightedQuickUnion {
         let current_j = self.size[j];
         if i == j { return; }
         if self.size[i] < self.size[j] {
-            self.id.remove(i);
-            self.id.insert(i, j);
-            self.size.remove(j);
-            self.size.insert(j, current_j + current_i);
+            *self.id.get_mut(i) = j;
+            *self.size.get_mut(j) = current_j + current_i;
         } else {
-            self.id.remove(j);
-            self.id.insert(j, i);
-            self.size.remove(i);
-            self.size.insert(i, current_j + current_i);
+            *self.id.get_mut(j) = i;
+            *self.size.get_mut(i) = current_j + current_i;
         }
     }
 }
