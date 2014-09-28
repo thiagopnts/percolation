@@ -108,6 +108,27 @@ impl Percolation {
         }
     }
 
+    fn fill_fast(&mut self, point: (uint, uint)) {
+        let (i, j) = point;
+        let q = self.to_index(i, j);
+        if self.is_open_in_direction(i, j, Up) {
+            let p = self.index(self.up(i, j));
+            self.positions.union(p, q);
+        }
+        if self.is_open_in_direction(i, j, Left) {
+            let p = self.index(self.left(i, j));
+            self.positions.union(p, q);
+        }
+        if self.is_open_in_direction(i, j, Right) {
+            let p = self.index(self.right(i, j));
+            self.positions.union(p, q);
+        }
+        if self.is_open_in_direction(i, j, Bottom) {
+            let p = self.index(self.bottom(i, j));
+            self.positions.union(p, q);
+        }
+    }
+
     fn fill(&mut self, point: (uint, uint)) {
         let (i, j) = point;
         let p = self.to_index(i, j);
@@ -159,9 +180,16 @@ impl Percolation {
 
     pub fn open(&mut self, i: uint, j: uint) {
         let index = self.to_index(i, j);
-
         *self.states.get_mut(index) = Open;
+
         self.fill((i, j));
+    }
+
+    pub fn open_fast(&mut self, i: uint, j: uint) {
+        let index = self.to_index(i, j);
+        *self.states.get_mut(index) = Open;
+
+        self.fill_fast((i, j));
     }
 
     pub fn is_open(&self, i: uint, j: uint) -> bool {
