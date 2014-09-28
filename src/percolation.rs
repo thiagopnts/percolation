@@ -34,12 +34,12 @@ impl Show for State {
 pub struct Percolation {
     n: uint,
     states: Vec<State>,
-    pub positions: QuickFind
+    pub positions: WeightedQuickUnion
 }
 
 impl Percolation {
     pub fn new(n: uint) -> Percolation {
-        Percolation{n: n, states: Vec::from_fn(n * n, |_| Blocked), positions: QuickFind::new(n * n)}
+        Percolation{n: n, states: Vec::from_fn(n * n, |_| Blocked), positions: WeightedQuickUnion::new(n * n)}
     }
 
     fn to_index(&self, i: uint, j: uint) -> uint {
