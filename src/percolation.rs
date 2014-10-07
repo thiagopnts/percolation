@@ -39,7 +39,16 @@ pub struct Percolation {
 
 impl Percolation {
     pub fn new(n: uint) -> Percolation {
-        Percolation{n: n, states: Vec::from_fn(n * n, |_| Blocked), positions: WeightedQuickUnion::new(n * n)}
+        let mut p = Percolation{n: n, states: Vec::from_fn(n * n, |_| Blocked), positions: WeightedQuickUnion::new(n * n)};
+        let lower_row_start = (n * n) - n;
+        let lower_row_end = n * n;
+        for i in range(0, n) {
+            p.positions.union(0, i);
+        }
+        for j in range(lower_row_start, lower_row_end) {
+            p.positions.union(lower_row_start, j);
+        }
+        p
     }
 
     fn to_index(&self, i: uint, j: uint) -> uint {
@@ -217,16 +226,11 @@ impl Percolation {
     }
 
     pub fn percolates(&self) -> bool {
-        let lower_row_start = (self.n * self.n) - self.n;
-        let lower_row_end = self.n * self.n;
-        for i in range(0, self.n) {
-            for j in range(lower_row_start, lower_row_end) {
-                if self.positions.connected(i, j) {
-                    return true;
-                }
-            }
+        if self.positions.connected(0, (self.n * self.n) - 1) {
+            true
+        } else {
+            false
         }
-        false
     }
 
     pub fn print_grid(&self) {
