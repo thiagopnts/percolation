@@ -107,16 +107,6 @@ impl Percolation {
         self.states[self.index(self.up(i, j))]
     }
 
-    fn is_blocked(&self, i: uint, j: uint, direction: Direction) -> bool {
-        match direction {
-            Right => self.has_right(i, j) && self.right_state(i, j) == Blocked,
-            Left  => self.has_left(i, j) && self.left_state(i, j) == Blocked,
-            Up    => self.has_up(i, j) && self.up_state(i, j) == Blocked,
-            Bottom => self.has_bottom(i, j) && self.bottom_state(i, j) == Blocked,
-            Current => self.states[self.to_index(i, j)] == Blocked
-        }
-    }
-
     fn fill(&mut self, point: (uint, uint)) {
         let (i, j) = point;
         let p = self.to_index(i, j);
